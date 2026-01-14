@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { GameState, Player, Card, Meld } from '@/types/game';
 import { createDeck, shuffleDeck, dealCards, calculatePoints } from '@/lib/game/deck';
 import { isValidMeld } from '@/lib/game/rules';
+import { groupHand } from '@/lib/game/sorting';
 
 interface GameStore extends GameState {
   startGame: () => void;
@@ -10,6 +11,8 @@ interface GameStore extends GameState {
   meldCards: (playerId: string, cards: Card[]) => void;
   chowCard: (playerId: string, card: Card, meldCards: Card[]) => void;
   checkWinner: () => void;
+  reorderHand: (playerId: string, newHand: Card[]) => void;
+  autoArrangeHand: (playerId: string) => void;
 }
 
 const INITIAL_PLAYERS: Player[] = [
@@ -136,5 +139,26 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const { players } = get();
     const sortedPlayers = [...players].sort((a, b) => calculatePoints(a.hand) - calculatePoints(b.hand));
     set({ phase: 'ended', winnerId: sortedPlayers[0].id });
+  },
+
+  reorderHand: (playerId, newHand) => {
+    const { players } = get();
+    const newPlayers = players.map(p => 
+      p.id === playerId ? { ...p, hand: newHand } : p
+    );
+    set({ players: newPlayers });
+  },
+
+  autoArrangeHand: (playerId) => {
+    const { players } = get();
+    const player = players.find(p => p.id === playerId);
+    if (!player) return;
+
+    const newHand = groupHand(player.hand);
+    
+    const newPlayers = players.map(p => 
+      p.id === playerId ? { ...p, hand: newHand } : p
+    );
+    set({ players: newPlayers });
   }
 }));

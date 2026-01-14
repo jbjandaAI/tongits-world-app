@@ -13,8 +13,8 @@ interface CardProps {
 const suitColors = {
   hearts: 'text-red-500',
   diamonds: 'text-red-500',
-  clubs: 'text-black dark:text-gray-200',
-  spades: 'text-black dark:text-gray-200',
+  clubs: 'text-black',
+  spades: 'text-black',
 };
 
 const suitIcons = {
