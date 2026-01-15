@@ -16,13 +16,13 @@ export const VerifyBlock = ({ onVerified }: { onVerified: () => void }) => {
     // In a real app, 'action' should be created in the World Developer Portal
     const verifyPayload: VerifyCommandInput = {
       action: 'play-tongits', 
+      signal: '',
       verification_level: VerificationLevel.Orb, // Default to Orb for uniqueness
     };
 
     try {
-      const response = await MiniKit.commands.verify(verifyPayload);
-      // @ts-ignore - The response type might be different from the one in the docs or local type defs
-      if (response && response.finalPayload && response.finalPayload.verification_level) {
+      const response = await MiniKit.commandsAsync.verify(verifyPayload);
+      if (response.finalPayload.verification_level) {
           // In a real app, you would send response to backend to verify proof
           console.log("Verification Success:", response);
           onVerified();
