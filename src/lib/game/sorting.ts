@@ -41,24 +41,18 @@ function getMeldsWithCard(target: Card, pool: Card[]): Card[][] {
   sameSuit.sort((a, b) => a.value - b.value);
 
   // We need to form a sequence of at least 3 incl target.
-  // We can just iterate all possible start/end points around the target value.
-  // A run including target (val V) could start from V-2, V-1, or V.
   const tVal = target.value;
 
   // Potential cards by value lookup
   const valMap = new Map<number, Card>();
-  sameSuit.forEach(c => valMap.set(c.value, c)); // Assuming no duplicate cards in single deck hand
+  sameSuit.forEach(c => valMap.set(c.value, c)); 
   valMap.set(tVal, target);
 
   // Check valid continuous ranges [start, end] containing tVal, length >= 3
-  // Min Value is 1, Max is 13.
-  // Range must include tVal.
   for (let start = Math.max(1, tVal - 12); start <= tVal; start++) {
-    // If start card missing, skip
     if (!valMap.has(start)) continue;
 
     let currentParamRun: Card[] = [];
-    let validSequence = true;
 
     // Build forward from start
     for (let v = start; v <= 13; v++) {
@@ -77,9 +71,9 @@ function getMeldsWithCard(target: Card, pool: Card[]): Card[][] {
 
 /**
  * Recursive solver to maximize melded cards.
- * Returns { melded: Card[], remaining: Card[] }
+ * Returns { melded: Card[][], remaining: Card[] }
  */
-function solveHand(currentHand: Card[]): { melded: Card[], remaining: Card[] } {
+function solveHand(currentHand: Card[]): { melded: Card[][], remaining: Card[] } {
   // Base case
   if (currentHand.length < 3) {
     return { melded: [], remaining: currentHand };
@@ -90,7 +84,6 @@ function solveHand(currentHand: Card[]): { melded: Card[], remaining: Card[] } {
   const rest = currentHand.slice(1);
 
   // Option 1: Treat 'first' as deadwood
-  // Recurse on remaining
   const resultSkip = solveHand(rest);
   const bestSkip = {
     melded: resultSkip.melded,
@@ -98,6 +91,7 @@ function solveHand(currentHand: Card[]): { melded: Card[], remaining: Card[] } {
   };
 
   let bestResult = bestSkip;
+  const countMelded = (melds: Card[][]) => melds.reduce((acc, m) => acc + m.length, 0);
 
   // Option 2: Try to form a meld with 'first'
   const possibleMelds = getMeldsWithCard(first, rest);
@@ -111,10 +105,10 @@ function solveHand(currentHand: Card[]): { melded: Card[], remaining: Card[] } {
     const subResult = solveHand(nextRest);
 
     // Total melded for this branch
-    const branchMelded = [...meld, ...subResult.melded];
-    const branchRemaining = subResult.remaining; // no need to add anything, all used
+    const branchMelded = [meld, ...subResult.melded];
+    const branchRemaining = subResult.remaining; 
 
-    if (branchMelded.length > bestResult.melded.length) {
+    if (countMelded(branchMelded) > countMelded(bestResult.melded)) {
       bestResult = { melded: branchMelded, remaining: branchRemaining };
     }
   }
@@ -123,28 +117,31 @@ function solveHand(currentHand: Card[]): { melded: Card[], remaining: Card[] } {
 }
 
 export function groupHand(hand: Card[]): Card[] {
+  // Clear existing group IDs first
+  const input = hand.map(c => ({ ...c, groupId: undefined }));
+
   // Sort input first to ensure deterministic behavior (id-wise) if values same
-  const sortedInput = [...hand].sort(sortBySuitThenValue);
+  const sortedInput = [...input].sort(sortBySuitThenValue);
 
   // Run the solver
   const solution = solveHand(sortedInput);
 
-  // Sort the melded groups for display consistency?
-  // The recursive solution returns melds in order found. 
-  // We might want to keep the melds grouped nicely. 
-  // currently 'solution.melded' is just a flat array of valid meld cards. 
-  // But strictly speaking, the flat array might lose the "grouping" if we aren't careful?
-  // Actually, 'groupHand' spec implies returning a flat list where melds are usually consecutive.
-  // Our backtracking constructs 'branchMelded' = [meld, ...subResult.melded]. 
-  // So yes, they are concatenated blocks. Perfect.
+  // Assign group IDs to melded groups
+  const finalMelded: Card[] = [];
+  solution.melded.forEach((group, idx) => {
+    // Create a deterministic but unique ID for the group
+    const groupId = `group-${idx}-${Date.now()}`;
+    const groupCards = group.map(c => ({ ...c, groupId }));
+    finalMelded.push(...groupCards);
+  });
 
   // Sort remaining deadwood
-  solution.remaining.sort(sortBySuitThenValue);
+  const finalRemaining = solution.remaining.map(c => ({ ...c, groupId: undefined }));
+  finalRemaining.sort(sortBySuitThenValue);
 
-  return [...solution.melded, ...solution.remaining];
+  return [...finalMelded, ...finalRemaining];
 }
 
-// Alternative: Just simple sort
 export function sortHandBySuit(hand: Card[]): Card[] {
   return [...hand].sort(sortBySuitThenValue);
 }

@@ -6,6 +6,7 @@ export interface Card {
   suit: Suit;
   rank: Rank;
   value: number; // 1-13 for sorting/logic
+  groupId?: string; // ID of the meld/group this card belongs to
 }
 
 export interface Meld {
