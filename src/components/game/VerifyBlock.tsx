@@ -22,7 +22,7 @@ export const VerifyBlock = ({ onVerified }: { onVerified: () => void }) => {
 
     try {
       const response = await MiniKit.commandsAsync.verify(verifyPayload);
-      if (response.finalPayload.verification_level) {
+      if (response?.finalPayload?.verification_level) {
           // In a real app, you would send response to backend to verify proof
           console.log("Verification Success:", response);
           onVerified();
