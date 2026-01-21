@@ -32,7 +32,7 @@ export function isValidMeld(cards: Card[]): boolean {
 }
 
 // Identify all possible melds in a hand (simple greedy approach or just helper for hints)
-export function findPotentialMelds(hand: Card[]): Meld[] {
+export function findPotentialMelds(_hand: Card[]): Meld[] {
   // This is a complex logic for auto-sorting/hinting, skipping for MVP
   // Implementing a basic check for now
   return [];

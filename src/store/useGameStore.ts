@@ -130,7 +130,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({ players: newPlayers });
   },
 
-  chowCard: (playerId, card, meldCards) => {
+  chowCard: (_playerId, _card, _meldCards) => {
     // Placeholder for Chow logic (taking from discard pile)
   },
 

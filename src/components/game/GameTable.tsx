@@ -7,7 +7,6 @@ export const GameTable: React.FC = () => {
   const { 
     players, 
     discardPile, 
-    currentPlayerId, 
     currentTurnIndex, 
     deck, 
     drawCard,

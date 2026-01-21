@@ -52,7 +52,7 @@ function getMeldsWithCard(target: Card, pool: Card[]): Card[][] {
   for (let start = Math.max(1, tVal - 12); start <= tVal; start++) {
     if (!valMap.has(start)) continue;
 
-    let currentParamRun: Card[] = [];
+    const currentParamRun: Card[] = [];
 
     // Build forward from start
     for (let v = start; v <= 13; v++) {

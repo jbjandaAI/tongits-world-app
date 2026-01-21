@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { MiniKit, VerifyCommandInput, VerificationLevel, ISuccessResult, MiniAppVerifyActionErrorPayload } from '@worldcoin/minikit-js';
+import { MiniKit, VerifyCommandInput, VerificationLevel, MiniAppVerifyActionErrorPayload } from '@worldcoin/minikit-js';
 
 export const VerifyBlock = ({ onVerified }: { onVerified: () => void }) => {
   const [isVerifying, setIsVerifying] = useState(false);
